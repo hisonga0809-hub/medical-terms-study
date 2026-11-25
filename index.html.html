@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>간호학과 의학용어 암기</title>
+<style>
+:root{--navy:#243b53;--blue:#486b91;--bg:#f4f7fb;--ink:#233143;--muted:#718096;--line:#e2e8f0;--accent:#e9f1fb;--green:#2e7865}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(135deg,#243b53,#426b91);color:white;padding:28px 20px 30px}header .wrap,main{max-width:980px;margin:auto}
+.brand{font-size:13px;letter-spacing:2px;opacity:.8;font-weight:700}h1{margin:8px 0 6px;font-size:clamp(25px,5vw,36px)}header p{margin:0;opacity:.9}
+main{padding:20px 16px 50px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:-5px;margin-bottom:20px}
+.stat,.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 4px 14px #243b5308}
+.stat strong{display:block;font-size:25px;color:var(--navy)}.stat span{font-size:13px;color:var(--muted)}
+.tabs{display:flex;gap:8px;overflow:auto;margin:16px 0}.tab{border:1px solid var(--line);background:white;color:var(--ink);padding:11px 16px;border-radius:999px;white-space:nowrap;cursor:pointer;font-weight:700}.tab.active{background:var(--navy);color:white;border-color:var(--navy)}
+.panel h2{font-size:20px;margin:0 0 6px}.sub{color:var(--muted);font-size:14px;margin:0 0 18px}
+input,select{width:100%;padding:12px;border:1px solid #d5deea;border-radius:10px;font:inherit;background:white;color:var(--ink)}label{font-size:13px;font-weight:700;display:block;margin:0 0 6px}
+.formgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
+button{border:0;border-radius:10px;padding:11px 15px;font:inherit;font-weight:700;cursor:pointer;background:var(--navy);color:white}button.secondary{background:var(--accent);color:var(--navy)}button.danger{background:#fff0f0;color:#9b3b3b}button:disabled{opacity:.45;cursor:not-allowed}
+.hidden{display:none!important}.quizbox{background:#f7f9fc;border:1px solid var(--line);border-radius:14px;padding:20px;margin-top:12px}.question{font-size:22px;font-weight:800;margin:14px 0}.answerrow{display:flex;gap:8px}.answerrow input{flex:1}.feedback{font-weight:700;margin-top:12px}.good{color:var(--green)}.bad{color:#b14c4c}
+table{width:100%;border-collapse:collapse;margin-top:12px}th,td{text-align:left;padding:12px 9px;border-bottom:1px solid var(--line);font-size:14px}th{color:var(--muted);font-size:12px}td button{padding:7px 10px;font-size:12px}
+.empty{padding:25px;text-align:center;color:var(--muted)}.small{font-size:12px;color:var(--muted)}footer{text-align:center;color:var(--muted);padding:22px;font-size:12px}
+@media(max-width:650px){.stats{gap:8px}.stat{padding:14px}.stat strong{font-size:20px}.formgrid{grid-template-columns:1fr}.answerrow{flex-direction:column}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<div class="brand">NURSING · STUDY</div><h1>오늘도 의학용어 암기!</h1>
+<p>단원별 학습부터 퀴즈, 오답 복습까지 한곳에서.</p>
+</div></header>
+<main>
+<section class="stats">
+<div class="stat"><strong id="totalCount">0</strong><span>등록된 용어</span></div>
+<div class="stat"><strong id="wrongCount">0</strong><span>오답노트</span></div>
+<div class="stat"><strong id="rate">—</strong><span>누적 정답률</span></div>
+</section>
+<div class="tabs">
+<button class="tab active" data-view="quiz">퀴즈</button><button class="tab" data-view="terms">단어장</button><button class="tab" data-view="add">용어 추가</button><button class="tab" data-view="wrong">오답노트</button><button class="tab" data-view="results">학습 결과</button>
+</div>
+<section id="quizView" class="panel">
+<h2>의학용어 퀴즈</h2><p class="sub">한국어 뜻을 보고 영어 의학용어를 입력하세요.</p>
+<label for="quizUnit">학습 단원</label><select id="quizUnit"><option value="all">전체 단원</option></select>
+<div class="actions"><button id="startQuiz">퀴즈 시작</button><button class="secondary" id="startWrong">오답만 풀기</button></div>
+<div id="quizArea" class="quizbox hidden"><div class="small" id="quizProgress"></div><div class="question" id="question"></div><div class="answerrow"><input id="answer" placeholder="영어 의학용어 입력" autocomplete="off"><button id="submitAnswer">정답 확인</button></div><div id="feedback" class="feedback"></div><div class="actions"><button id="nextQuestion" class="secondary hidden">다음 문제</button></div></div>
+<div id="quizEmpty" class="empty">단어를 등록한 후 퀴즈를 시작해 보세요.</div>
+</section>
+<section id="termsView" class="panel hidden"><h2>단원별 의학용어</h2><p class="sub">등록된 용어를 확인하고 삭제할 수 있습니다.</p><label for="listUnit">단원 필터</label><select id="listUnit"><option value="all">전체 단원</option></select><div id="termTable"></div></section>
+<section id="addView" class="panel hidden"><h2>의학용어 추가</h2><p class="sub">영어 용어, 한국어 뜻, 단원을 입력해 단어장에 저장하세요.</p>
+<form id="termForm"><div class="formgrid"><div><label for="english">영어 의학용어</label><input id="english" required placeholder="예: Peritonitis"></div><div><label for="korean">한국어 뜻</label><input id="korean" required placeholder="예: 복막염"></div><div><label for="unit">단원</label><input id="unit" required placeholder="예: 소화기계"></div></div><div class="actions"><button type="submit">용어 저장</button></div></form></section>
+<section id="wrongView" class="panel hidden"><h2>오답노트</h2><p class="sub">퀴즈에서 틀린 용어를 모아 복습합니다.</p><div id="wrongTable"></div><div class="actions"><button id="clearWrong" class="danger">오답노트 비우기</button></div></section>
+<section id="resultsView" class="panel hidden"><h2>학습 결과</h2><p class="sub">퀴즈 풀이 기록을 확인하세요.</p><div id="resultText"></div></section>
+</main><footer>개인 학습용 의학용어 암기 도구 · 입력한 용어의 정확성은 사용자가 확인하세요.</footer>
+<script>
+const seed=[
+["Peritonitis","복막염","소화기계"],["Hematochezia","혈변","소화기계"],["Cholelithiasis","담석증","소화기계"],["Dysphagia","연하곤란","소화기계"],["Constipation","변비","소화기계"],["GERD","위식도역류질환","소화기계"],["Hematemesis","토혈","소화기계"],["Ascites","복수","소화기계"],["Colostomy","결장루","소화기계"],["ERCP","내시경적 역행성 담췌관 조영술","소화기계"],["HCC","간세포암","소화기계"],["Hypovolemic shock","저혈량성 쇼크","순환기계"],["Tachycardia","빈맥","순환기계"],["Bradycardia","서맥","순환기계"],["Dyspnea","호흡곤란","호흡기계"],["Pneumonia","폐렴","호흡기계"]
+].map(([en,ko,unit])=>({en,ko,unit}));
+let terms=JSON.parse(localStorage.getItem("med_terms")||"null")||seed;
+let wrong=JSON.parse(localStorage.getItem("med_wrong")||"[]"), stats=JSON.parse(localStorage.getItem("med_stats")||'{"correct":0,"total":0}');
+let current=null,queue=[],qIndex=0,wrongMode=false;
+const $=id=>document.getElementById(id);
+function save(){localStorage.setItem("med_terms",JSON.stringify(terms));localStorage.setItem("med_wrong",JSON.stringify(wrong));localStorage.setItem("med_stats",JSON.stringify(stats));}
+function units(){return [...new Set(terms.map(t=>t.unit))].sort()}
+function fillUnits(){["quizUnit","listUnit"].forEach(id=>{let s=$(id),v=s.value;s.innerHTML='<option value="all">전체 단원</option>'+units().map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join("");s.value=units().includes(v)?v:"all"})}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function render(){save();fillUnits();$("totalCount").textContent=terms.length;$("wrongCount").textContent=wrong.length;$("rate").textContent=stats.total?Math.round(stats.correct/stats.total*100)+"%":"—";renderTerms();renderWrong();renderResults();}
+function renderTerms(){let f=$("listUnit").value;let list=terms.filter(t=>f==="all"||t.unit===f);$("termTable").innerHTML=list.length?`<table><thead><tr><th>영어</th><th>한국어</th><th>단원</th><th></th></tr></thead><tbody>${list.map(t=>`<tr><td>${esc(t.en)}</td><td>${esc(t.ko)}</td><td>${esc(t.unit)}</td><td><button class="danger" onclick="removeTerm('${esc(t.en).replace(/'/g,"\\'")}')">삭제</button></td></tr>`).join("")}</tbody></table>`:'<div class="empty">등록된 용어가 없습니다.</div>'}
+function renderWrong(){let list=wrong.map(w=>terms.find(t=>t.en.toLowerCase()===w.toLowerCase())).filter(Boolean);$("wrongTable").innerHTML=list.length?`<table><thead><tr><th>영어</th><th>한국어</th><th>단원</th></tr></thead><tbody>${list.map(t=>`<tr><td>${esc(t.en)}</td><td>${esc(t.ko)}</td><td>${esc(t.unit)}</td></tr>`).join("")}</tbody></table>`:'<div class="empty">오답노트가 비어 있습니다.</div>'}
+function renderResults(){$("resultText").innerHTML=`<div class="stats"><div class="stat"><strong>${stats.total}</strong><span>풀이 수</span></div><div class="stat"><strong>${stats.correct}</strong><span>정답 수</span></div><div class="stat"><strong>${stats.total?Math.round(stats.correct/stats.total*100):0}%</strong><span>정답률</span></div></div>`}
+function removeTerm(en){terms=terms.filter(t=>t.en.toLowerCase()!==en.toLowerCase());wrong=wrong.filter(w=>w.toLowerCase()!==en.toLowerCase());render()}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll("main section.panel").forEach(s=>s.classList.add("hidden"));$(b.dataset.view+"View").classList.remove("hidden")}));
+$("termForm").addEventListener("submit",e=>{e.preventDefault();let en=$("english").value.trim(),ko=$("korean").value.trim(),unit=$("unit").value.trim();if(terms.some(t=>t.en.toLowerCase()===en.toLowerCase())){alert("이미 등록된 영어 용어입니다.");return}terms.push({en,ko,unit});$("termForm").reset();render();alert("용어가 저장되었습니다.")});
+$("listUnit").addEventListener("change",renderTerms);
+function begin(isWrong){wrongMode=isWrong;let pool=isWrong?terms.filter(t=>wrong.some(w=>w.toLowerCase()===t.en.toLowerCase())):terms.filter(t=>$("quizUnit").value==="all"||t.unit===$("quizUnit").value);queue=pool.sort(()=>Math.random()-.5);qIndex=0;if(!queue.length){$("quizArea").classList.add("hidden");$("quizEmpty").classList.remove("hidden");$("quizEmpty").textContent=isWrong?"오답노트에 풀 문제가 없습니다.":"선택한 단원에 등록된 용어가 없습니다.";return}$("quizEmpty").classList.add("hidden");$("quizArea").classList.remove("hidden");showQ()}
+function showQ(){current=queue[qIndex];$("quizProgress").textContent=`${qIndex+1} / ${queue.length}`;$("question").textContent=current.ko;$("answer").value="";$("answer").disabled=false;$("submitAnswer").disabled=false;$("feedback").textContent="";$("nextQuestion").classList.add("hidden");$("answer").focus()}
+$("startQuiz").onclick=()=>begin(false);$("startWrong").onclick=()=>begin(true);
+function check(){if(!current||$("submitAnswer").disabled)return;let val=$("answer").value.trim();if(!val){$("feedback").textContent="답을 입력해 주세요.";return}let ok=val.toLowerCase()===current.en.toLowerCase();stats.total++;if(ok){stats.correct++;wrong=wrong.filter(w=>w.toLowerCase()!==current.en.toLowerCase());$("feedback").textContent="정답입니다! "+current.en;$("feedback").className="feedback good"}else{if(!wrong.some(w=>w.toLowerCase()===current.en.toLowerCase()))wrong.push(current.en);$("feedback").textContent="오답입니다. 정답: "+current.en;$("feedback").className="feedback bad"}$("answer").disabled=true;$("submitAnswer").disabled=true;$("nextQuestion").classList.remove("hidden");render()}
+$("submitAnswer").onclick=check;$("answer").addEventListener("keydown",e=>{if(e.key==="Enter")check()});
+$("nextQuestion").onclick=()=>{qIndex++;if(qIndex>=queue.length){$("question").textContent="퀴즈 완료!";$("answer").classList.add("hidden");$("submitAnswer").classList.add("hidden");$("nextQuestion").textContent="다시 시작";$("nextQuestion").onclick=()=>{ $("answer").classList.remove("hidden");$("submitAnswer").classList.remove("hidden");begin(wrongMode)};$("feedback").textContent="모든 문제를 풀었습니다.";return}showQ()};
+$("clearWrong").onclick=()=>{if(confirm("오답노트를 비울까요?")){wrong=[];render()}};
+render();
+</script>
+</body>
+</html>
